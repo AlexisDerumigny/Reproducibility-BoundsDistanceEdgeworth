@@ -50,6 +50,7 @@ This study was done using R version 4.2.1 with the following packages:
 | `cubature`       | 0.4.5   |
 | `expint`         | 0.1-7   |
 | `rmarkdown`      | 2.16.1  |
+| `gt`             | 0.7.0   |
 
 
 They can be all installed using the following command.
@@ -57,5 +58,5 @@ They can be all installed using the following command.
 ``` r
 install.packages(c("BoundEdgeworth", "tidyverse", "ggplot2",
   "tibble", "tidyr", "readr", "purrr" , "dplyr",
-  "stringr", "forcats", "cubature", "expint", "rmarkdown"))
+  "stringr", "forcats", "cubature", "expint", "rmarkdown", "gt"))
 ```
