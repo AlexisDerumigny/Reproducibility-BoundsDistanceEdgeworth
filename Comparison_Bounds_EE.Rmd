@@ -1,0 +1,151 @@
+---
+title: "Figures of boundsEE as a function of n"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(BoundEdgeworth)
+library(ggplot2)
+```
+
+```{r definition of the bounds}
+K4 = 9
+K3 = K4^(3/4)
+lambda3 = 0.621*K3
+eps = 0.1
+kappa = 0.99
+C0 = 1
+p = 2
+
+n = ceiling(10^(seq(2,7,by = 0.01)))
+```
+
+
+# Plotting the bounds under Assumption 2.1 or 2.2
+
+```{r}
+df1 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = FALSE, iid = FALSE, no_skewness = FALSE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(C0 = C0, p = p),
+                    eps = 0.1) ,
+                  type = "inid", BE = "Thm 2.3")
+df2 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = FALSE, iid = FALSE, no_skewness = TRUE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(C0 = C0, p = p),
+                    eps = 0.1) ,
+                  type = "inid unskewed", BE = "Thm 2.3")
+df3 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = FALSE, iid = TRUE, no_skewness = FALSE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(kappa = kappa),
+                    eps = 0.1) ,
+                  type = "iid", BE = "Thm 2.3")
+df4 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = FALSE, iid = TRUE, no_skewness = TRUE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(kappa = kappa),
+                    eps = 0.1) ,
+                  type = "iid unskewed", BE = "Thm 2.3")
+
+df5 = data.frame( x = n , y = 0.56*K3/sqrt(n) ,
+                  type = "inid", BE = "Existing")
+
+df6 = data.frame( x = n , y = 0.4748*K3/sqrt(n) ,
+                  type = "iid", BE = "Existing")
+```
+
+
+```{r merging and reordering}
+df = rbind(df1,df2,df3,df4,df5,df6)
+
+# Reordering the levels
+df$BE = factor(df$BE, levels = c("Thm 2.3", "Existing"))
+df$type = factor(df$type, levels = c("inid", "inid unskewed", "iid", "iid unskewed"))
+```
+
+
+```{r}
+g = ggplot(df) +
+  geom_line(aes(x, y, colour = type, linetype = BE), size = 1) + 
+  ylab("Berry-Esseen bound") + xlab("Number of observations") +
+  scale_x_log10() + scale_y_log10() +
+  guides(colour = guide_legend(title = "Assumption") ,
+         linetype = guide_legend(title = "Source")) + 
+  theme(text = element_text(size = 15))
+
+print(g)
+```
+
+
+```{r}
+ggsave(g, filename = "graph_nocont.pdf", device = cairo_pdf,
+       height = 20, width = 25,  units = "cm") 
+```
+
+
+# Plotting the bounds in Corollaries 3.2 and 3.3
+
+
+```{r}
+df1 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = TRUE, iid = FALSE, no_skewness = FALSE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(C0 = C0, p = p),
+                    eps = eps) ,
+                  type = "inid", BE = "Cor 3.2-3.3")
+df2 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = TRUE, iid = FALSE, no_skewness = TRUE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(C0 = C0, p = p),
+                    eps = eps) ,
+                  type = "inid unskewed", BE = "Cor 3.2-3.3")
+df3 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = TRUE, iid = TRUE, no_skewness = FALSE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(kappa = kappa),
+                    eps = eps) ,
+                  type = "iid", BE = "Cor 3.2-3.3")
+df4 = data.frame( x = n ,
+                  y = Bound_BE(
+                    setup = list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
+                    n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
+                    regularity = list(kappa = kappa),
+                    eps = eps) ,
+                  type = "iid unskewed", BE = "Cor 3.2-3.3")
+
+df = rbind(df1,df2,df3,df4,df5,df6)
+
+df$BE = factor(df$BE, levels = c("Cor 3.2-3.3", "Existing"))
+df$type = factor(df$type, levels = c("inid", "inid unskewed", "iid", "iid unskewed"))
+```
+
+
+```{r}
+g = ggplot(df) + 
+  geom_line(aes(x, y, colour = type, linetype = BE), size = 1) + 
+  ylab("Berry-Esseen bound") + xlab("Number of observations") +
+  scale_x_log10() + scale_y_log10(n.breaks = 6) +
+  guides(colour = guide_legend(title = "Assumption") ,
+         linetype = guide_legend(title = "Source")) + 
+  theme(text = element_text(size = 15))
+
+print(g)
+```
+
+
+```{r}
+ggsave(g, filename = "graph_cont.pdf", device = cairo_pdf,
+       height = 20, width = 25,  units = "cm") 
+```
+
+
