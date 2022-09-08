@@ -1,7 +1,9 @@
 ---
-title: "Figures of boundsEE as a function of n"
+title: "Figures: bounds on the approximation error as a function of n"
+author: "Derumigny, A. , Guyonvarch Y. & Girard, L."
+date: \today
 output:
-  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -31,28 +33,28 @@ df1 = data.frame( x = n ,
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(C0 = C0, p = p),
                     eps = 0.1) ,
-                  type = "inid", BE = "Thm 2.3")
+                  type = "inid", BE = "Thm 1")
 df2 = data.frame( x = n ,
                   y = Bound_BE(
                     setup = list(continuity = FALSE, iid = FALSE, no_skewness = TRUE),
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(C0 = C0, p = p),
                     eps = 0.1) ,
-                  type = "inid unskewed", BE = "Thm 2.3")
+                  type = "inid unskewed", BE = "Thm 1")
 df3 = data.frame( x = n ,
                   y = Bound_BE(
                     setup = list(continuity = FALSE, iid = TRUE, no_skewness = FALSE),
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(kappa = kappa),
                     eps = 0.1) ,
-                  type = "iid", BE = "Thm 2.3")
+                  type = "iid", BE = "Thm 1")
 df4 = data.frame( x = n ,
                   y = Bound_BE(
                     setup = list(continuity = FALSE, iid = TRUE, no_skewness = TRUE),
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(kappa = kappa),
                     eps = 0.1) ,
-                  type = "iid unskewed", BE = "Thm 2.3")
+                  type = "iid unskewed", BE = "Thm 1")
 
 df5 = data.frame( x = n , y = 0.56*K3/sqrt(n) ,
                   type = "inid", BE = "Existing")
@@ -66,7 +68,7 @@ df6 = data.frame( x = n , y = 0.4748*K3/sqrt(n) ,
 df = rbind(df1,df2,df3,df4,df5,df6)
 
 # Reordering the levels
-df$BE = factor(df$BE, levels = c("Thm 2.3", "Existing"))
+df$BE = factor(df$BE, levels = c("Thm 1", "Existing"))
 df$type = factor(df$type, levels = c("inid", "inid unskewed", "iid", "iid unskewed"))
 ```
 
@@ -90,7 +92,7 @@ ggsave(g, filename = "graph_nocont.pdf", device = cairo_pdf,
 ```
 
 
-# Plotting the bounds in Corollaries 3.2 and 3.3
+# Plotting the bounds in Corollaries 3 and 4
 
 
 ```{r}
@@ -100,32 +102,32 @@ df1 = data.frame( x = n ,
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(C0 = C0, p = p),
                     eps = eps) ,
-                  type = "inid", BE = "Cor 3.2-3.3")
+                  type = "inid", BE = "Cor 3-4")
 df2 = data.frame( x = n ,
                   y = Bound_BE(
                     setup = list(continuity = TRUE, iid = FALSE, no_skewness = TRUE),
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(C0 = C0, p = p),
                     eps = eps) ,
-                  type = "inid unskewed", BE = "Cor 3.2-3.3")
+                  type = "inid unskewed", BE = "Cor 3-4")
 df3 = data.frame( x = n ,
                   y = Bound_BE(
                     setup = list(continuity = TRUE, iid = TRUE, no_skewness = FALSE),
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(kappa = kappa),
                     eps = eps) ,
-                  type = "iid", BE = "Cor 3.2-3.3")
+                  type = "iid", BE = "Cor 3-4")
 df4 = data.frame( x = n ,
                   y = Bound_BE(
                     setup = list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
                     n = n, K4 = K4, K3 = K3, lambda3 = lambda3,
                     regularity = list(kappa = kappa),
                     eps = eps) ,
-                  type = "iid unskewed", BE = "Cor 3.2-3.3")
+                  type = "iid unskewed", BE = "Cor 3-4")
 
 df = rbind(df1,df2,df3,df4,df5,df6)
 
-df$BE = factor(df$BE, levels = c("Cor 3.2-3.3", "Existing"))
+df$BE = factor(df$BE, levels = c("Cor 3-4", "Existing"))
 df$type = factor(df$type, levels = c("inid", "inid unskewed", "iid", "iid unskewed"))
 ```
 

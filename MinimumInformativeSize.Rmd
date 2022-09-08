@@ -1,7 +1,9 @@
 ---
 title: "Computation of minimum informative sizes"
+author: "Derumigny, A. , Guyonvarch Y. & Girard, L."
+date: \today
 output:
-  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}

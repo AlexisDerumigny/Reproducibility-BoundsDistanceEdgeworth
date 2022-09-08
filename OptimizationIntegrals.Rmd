@@ -1,9 +1,9 @@
 ---
-title: "Supplement A: numerical computations"
+title: "Numerical computations"
+author: "Derumigny, A. , Guyonvarch Y. & Girard, L."
+date: \today
 output:
-  html_document: default
-  pdf_document:
-    keep_tex: true
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
