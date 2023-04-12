@@ -1,0 +1,138 @@
+---
+title: "Bounding CDFs"
+output: pdf_document
+date: "2023-04-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+```{r}
+n = 40000
+Nrep = 10000
+```
+
+
+# Student-t distribution with 5 degrees of freedom
+
+```{r}
+Sn = rep(NA, Nrep)
+
+for (iRep in 1:Nrep){
+  Sn[iRep] = mean(rt(n, df = 5))
+}
+
+Sn_norm = scale(Sn)
+```
+
+```{r}
+plot(ecdf(Sn_norm), xlim = c(-5, 5))
+
+x = seq(-5, 5, by = 0.1)
+DeltanE = BoundEdgeworth::Bound_EE1(
+  list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
+  n = n, K4 = 9)
+
+lambda3n = mean(scale(rt(Nrep, df = 5))^3)
+
+# ymin = pnorm(x) + lambda3n / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) - DeltanE
+# ymax = pnorm(x) + lambda3n / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) + DeltanE
+
+ymin = pnorm(x) - DeltanE
+ymax = pnorm(x) + DeltanE
+
+lines(x, ymin, col = "red")
+lines(x, ymax, col = "red")
+
+PreviousBound = 0.4690 * mean(abs(scale(rt(Nrep, df = 5)))^3) / sqrt(n)
+
+lines(x, pnorm(x) - PreviousBound, col = "blue")
+lines(x, pnorm(x) + PreviousBound, col = "blue")
+```
+
+```{r}
+plot(ecdf(Sn_norm), xlim = c(1.5, 3.5), ylim = c(0.95, 1.01))
+
+lines(x, ymin, col = "red")
+lines(x, ymax, col = "red")
+
+lines(x, pnorm(x) - PreviousBound, col = "blue")
+lines(x, pnorm(x) + PreviousBound, col = "blue")
+```
+
+
+# Exponential distribution
+
+
+```{r}
+Sn_exp = rep(NA, Nrep)
+
+for (iRep in 1:Nrep){
+  Sn_exp[iRep] = mean(rexp(n, rate = 1))
+}
+
+Sn_exp_norm = scale(Sn_exp)
+```
+
+```{r}
+plot(ecdf(Sn_exp_norm), xlim = c(-5, 5))
+
+x = seq(-5, 5, by = 0.1)
+DeltanE = BoundEdgeworth::Bound_EE1(
+  list(continuity = TRUE, iid = TRUE, no_skewness = FALSE),
+  n = n, K4 = 9)
+
+lambda3n = mean(scale(rexp(Nrep, rate = 1))^3)
+
+ymin_brutal = pnorm(x) - 0.621 * 9^(3/4) / (6 * sqrt(n)) * 0.067 - DeltanE
+ymax_brutal = pnorm(x) + 0.621 * 9^(3/4) / (6 * sqrt(n)) * 0.067 + DeltanE
+
+ymin = pnorm(x) - 0.621 * 9^(3/4) / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) - DeltanE
+ymax = pnorm(x) + 0.621 * 9^(3/4) / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) + DeltanE
+
+ymin_oracle = pnorm(x) + lambda3n / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) - DeltanE
+ymax_oracle = pnorm(x) + lambda3n / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) + DeltanE
+
+
+# ymin = pnorm(x) - DeltanE
+# ymax = pnorm(x) + DeltanE
+
+lines(x, ymin, col = "red")
+lines(x, ymax, col = "red")
+
+lines(x, ymin_oracle, col = "green")
+lines(x, ymax_oracle, col = "green")
+
+lines(x, ymin_brutal, col = "purple")
+lines(x, ymax_brutal, col = "purple")
+
+PreviousBound = 0.4690 * 9^(3/4) / sqrt(n)
+# PreviousBound = 0.4690 * mean(abs(scale(rexp(Nrep, rate = 1)))^3) / sqrt(n)
+
+lines(x, pnorm(x) - PreviousBound, col = "blue")
+lines(x, pnorm(x) + PreviousBound, col = "blue")
+```
+
+```{r}
+plot(ecdf(Sn_exp_norm), xlim = c(1.4, 2.5), ylim = c(0.90, 1.01))
+
+lines(x, ymin, col = "red")
+lines(x, ymax, col = "red")
+
+lines(x, ymin_oracle, col = "green")
+lines(x, ymax_oracle, col = "green")
+
+lines(x, ymin_brutal, col = "purple")
+lines(x, ymax_brutal, col = "purple")
+
+lines(x, pnorm(x) - PreviousBound, col = "blue")
+lines(x, pnorm(x) + PreviousBound, col = "blue")
+```
+
+
+
+
+
