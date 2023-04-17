@@ -12,24 +12,17 @@ library(tidyverse)
 
 ```{r}
 n = 40000
-Nrep = 10000
 ```
 
 
 # Student-t distribution with 5 degrees of freedom
 
 ```{r}
-Sn = rep(NA, Nrep)
-
-for (iRep in 1:Nrep){
-  Sn[iRep] = mean(rt(n, df = 5))
-}
-
-Sn_norm = scale(Sn)
+cdf_Student_5df = read.csv("cdf_Student.csv", header = TRUE, sep = ",", dec = ".")
 ```
 
 ```{r}
-plot(ecdf(Sn_norm), xlim = c(-5, 5))
+plot(cdf_Student_5df$x, cdf_Student_5df$cdf, xlim = c(-5, 5), type = "l")
 
 x = seq(-5, 5, by = 0.1)
 DeltanE = BoundEdgeworth::Bound_EE1(
@@ -54,7 +47,7 @@ lines(x, pnorm(x) + PreviousBound, col = "blue")
 ```
 
 ```{r}
-plot(ecdf(Sn_norm), xlim = c(1.5, 3.5), ylim = c(0.95, 1.01))
+plot(cdf_Student_5df$x, cdf_Student_5df$cdf, type = "l", xlim = c(1.5, 3.5), ylim = c(0.92, 1.002))
 
 lines(x, ymin, col = "red")
 lines(x, ymax, col = "red")
@@ -64,23 +57,38 @@ lines(x, pnorm(x) + PreviousBound, col = "blue")
 ```
 
 
-# Exponential distribution
+# Gamma distribution
 
+If $X_i \sim Gamma(1, scale = 1)$, $mu = 1$, $sigma = 1$,
+
+$$S_n = \sum_{i=1}^n (X_i - 1) / \sqrt{\sigma * n}
+= (\sum_{i=1}^n X_i / \sqrt{n}) - \sqrt{n}$$
+
+$$P(S_n \leq x)
+= P(Gamma(n, 1) / sqrt{n} - \sqrt{n} \leq x)
+= P(Gamma(n, 1) \leq x * sqrt(n) + n)$$
 
 ```{r}
-Sn_exp = rep(NA, Nrep)
+library(Rmpfr)
+precBits = 500
 
-for (iRep in 1:Nrep){
-  Sn_exp[iRep] = mean(rexp(n, rate = 1))
-}
+n = 40000
+meanx = sqrt(n)
+x = seqMpfr(from = mpfr(-5, precBits),
+            to = mpfr(5, precBits), length.out = 500)
 
-Sn_exp_norm = scale(Sn_exp)
+shape = mpfr(n, precBits) # shape parameter
+gamma_a = Rmpfr::igamma(a = shape, 0)
+cdf_Gamma = mpfr(1, precBits) - ( Rmpfr::igamma(a = shape, x = x * sqrt(n) + n) / gamma_a )
+
+# plot(x, cdf_Gamma, type = "l")
 ```
 
 ```{r}
-plot(ecdf(Sn_exp_norm), xlim = c(-5, 5))
+x = as.numeric(x)
 
-x = seq(-5, 5, by = 0.1)
+plot(x, cdf_Gamma, type = "l", xlim = c(-5, 5), ylim = c(0,1.02))
+
 DeltanE = BoundEdgeworth::Bound_EE1(
   list(continuity = TRUE, iid = TRUE, no_skewness = FALSE),
   n = n, K4 = 9)
@@ -117,7 +125,7 @@ lines(x, pnorm(x) + PreviousBound, col = "blue")
 ```
 
 ```{r}
-plot(ecdf(Sn_exp_norm), xlim = c(1.4, 2.5), ylim = c(0.90, 1.01))
+plot(x, cdf_Gamma, type = "l", xlim = c(1.4, 2.5), ylim = c(0.90, 1.01))
 
 lines(x, ymin, col = "red")
 lines(x, ymax, col = "red")
