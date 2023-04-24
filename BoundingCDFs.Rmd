@@ -11,7 +11,7 @@ library(tidyverse)
 
 
 ```{r}
-n = 40000
+n = 5000
 Nrep = 10000
 ```
 
@@ -20,6 +20,9 @@ Nrep = 10000
 
 ```{r}
 cdf_Student_5df = read.csv("cdf_Student.csv", header = TRUE, sep = ",", dec = ".")
+
+lambda3n = mean(scale(rt(Nrep, df = 5))^3)
+K3n = mean(abs(scale(rt(Nrep, df = 5)))^3)
 ```
 
 ```{r}
@@ -29,10 +32,7 @@ DeltanE = BoundEdgeworth::Bound_EE1(
   list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
   n = n, K4 = 9)
 
-lambda3n = mean(scale(rt(Nrep, df = 5))^3)
-
-PreviousBound = 0.4690 * mean(abs(scale(rt(Nrep, df = 5)))^3) / sqrt(n)
-
+PreviousBound = 0.4690 * K3n / sqrt(n)
 
 df_bounds_Student = data.frame(
   x = c(cdf_Student_5df$x, rep(x, times = 4)),
@@ -41,8 +41,8 @@ df_bounds_Student = data.frame(
         pnorm(x) + DeltanE,
         pnorm(x) - PreviousBound,
         pnorm(x) + PreviousBound),
-  type = c(rep("True", nrow(cdf_Student_5df)),
-           rep(c("New", "New", "Existing", "Existing"), each = length(x))),
+  type = c(rep("True probability", nrow(cdf_Student_5df)),
+           rep(c("New bounds", "New bounds", "Existing bounds", "Existing bounds"), each = length(x))),
   uniqid = c(rep("True", nrow(cdf_Student_5df)),
              rep(c("New_min", "New_max", "Existing_min", "Existing_max"), each = length(x)))
 )
@@ -57,10 +57,16 @@ df_bounds_Student = data.frame(
 # lines(x, pnorm(x) - PreviousBound, col = "blue")
 # lines(x, pnorm(x) + PreviousBound, col = "blue")
 
-ggplot(df_bounds_Student) + 
+plot_Student <- ggplot(df_bounds_Student) + 
   geom_line(aes(x = x, y = y, color = type, group = uniqid)) +
-  # coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002))
-  coord_cartesian(xlim = c(2, 2.5), ylim = c(0.97, 1))
+  coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002)) +
+  xlab(label = expression(S[n])) +
+  ylab(label = expression(P(S[n] <= x))) +
+  guides(color = guide_legend(title = element_blank()) )
+
+print(plot_Student)
+
+ggsave("plot_bounds_Student.pdf", plot = plot_Student, width = 10, height = 5)
 ```
 
 <!-- ```{r} -->
