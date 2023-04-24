@@ -107,7 +107,8 @@ cdf_Gamma = mpfr(1, precBits) - ( Rmpfr::igamma(a = shape, x = x_mpfr * sqrt(n) 
 # plot(x, cdf_Gamma, type = "l")
 ```
 
-```{r fig.height=8, fig.width=8}
+
+```{r fig.height=6, fig.width=8}
 x = as.numeric(x_mpfr)
 
 # plot(x, cdf_Gamma, type = "l", xlim = c(-5, 5), ylim = c(0,1.02))
@@ -126,8 +127,8 @@ DeltanE_oracle = BoundEdgeworth::Bound_EE1(
   n = n, K3 = K3, K4 = K4, lambda3 = lambda3n)
 
 
-ymin_unif = pnorm(x) - 0.621 * 9^(3/4) / (6 * sqrt(n)) * 0.067 - DeltanE
-ymax_unif = pnorm(x) + 0.621 * 9^(3/4) / (6 * sqrt(n)) * 0.067 + DeltanE
+# ymin_unif = pnorm(x) - 0.621 * 9^(3/4) / (6 * sqrt(n)) * 0.067 - DeltanE
+# ymax_unif = pnorm(x) + 0.621 * 9^(3/4) / (6 * sqrt(n)) * 0.067 + DeltanE
 
 ymin = pnorm(x) - 0.621 * 9^(3/4) / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) - DeltanE
 ymax = pnorm(x) + 0.621 * 9^(3/4) / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) + DeltanE
@@ -144,41 +145,43 @@ y_previous_oracle_min = pnorm(x) - PreviousBound_oracle
 y_previous_oracle_max = pnorm(x) + PreviousBound_oracle
 
 df_bounds_Gamma = data.frame(
-  x = c(rep(x, times = 11)),
+  x = c(rep(x, times = 9)),
   y = c(as.numeric(cdf_Gamma),
         ymin, ymax,
-        ymin_unif, ymax_unif,
+        # ymin_unif, ymax_unif,
         ymin_oracle, ymax_oracle,
         y_previous_min, y_previous_max,
         y_previous_oracle_min, y_previous_oracle_max),
-  type = factor(c(rep(c("True", "Non_unif", "Non_unif", "Unif", "Unif",
-                        "Non_unif", "Non_unif", "Existing", "Existing", "Existing", "Existing"), each = length(x))),
-                levels = c("True", "Non_unif", "Unif", "Existing")),
-  uniqid = rep(c("True", "K4=9_min", "K4=9_max", "Unif_min", "Unif_max",
-                 "Oracle_min", "Oracle_max",
-                 "Existing_min", "Existing_max", "Existing_oracle_min", "Existing__oracle_max"), each = length(x) ),
-  oracle = c(rep(c(TRUE, FALSE, FALSE, FALSE, FALSE,
-                   TRUE, TRUE, FALSE, FALSE, TRUE, TRUE), each = length(x) )  )
+  type = factor(c(rep(c("True probability",
+                        "New bounds", "New bounds",
+                        "New bounds", "New bounds",
+                        "Existing bounds", "Existing bounds",
+                        "Existing bounds", "Existing bounds"), each = length(x))),
+                levels = c("True probability", "New bounds", "Existing bounds")),
+  uniqid = rep(c("True",
+                 "K4=9_min", "K4=9_max", "Oracle_min", "Oracle_max",
+                 "Existing_min", "Existing_max",
+                 "Existing_oracle_min", "Existing__oracle_max"), each = length(x) ),
+  Oracle = c(rep(c(TRUE,
+                   FALSE, FALSE, TRUE, TRUE,
+                   FALSE, FALSE, TRUE, TRUE), each = length(x) )  )
 )
 
-
-ggplot(df_bounds_Gamma) + 
-  geom_line(aes(x = x, y = y, color = type, group = uniqid, linetype = oracle)) +
+plot_Gamma <- ggplot(df_bounds_Gamma) + 
+  geom_line(aes(x = x, y = y, color = type, group = uniqid, linetype = Oracle)) +
   # coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002))
-  coord_cartesian(xlim = c(2, 2.5), ylim = c(0.97, 1))
+  coord_cartesian(xlim = c(2, 2.5), ylim = c(0.97, 1)) +
+  xlab(label = expression(S[n])) +
+  ylab(label = expression(P(S[n] <= x))) +
+  scale_color_manual(
+    values = c("True probability" = scales::hue_pal()(3)[3],
+               "New bounds"       = scales::hue_pal()(3)[2],
+               "Existing bounds"  = scales::hue_pal()(3)[1] ) )
 
+print(plot_Gamma)
 
-# lines(x, ymin, col = "red")
-# lines(x, ymax, col = "red")
-# 
-# lines(x, ymin_oracle, col = "green")
-# lines(x, ymax_oracle, col = "green")
-# 
-# lines(x, ymin_brutal, col = "purple")
-# lines(x, ymax_brutal, col = "purple")
-# 
-# lines(x, pnorm(x) - PreviousBound, col = "blue")
-# lines(x, pnorm(x) + PreviousBound, col = "blue")
+ggsave("plot_bounds_Gamma.pdf", plot = plot_Gamma, width = 10, height = 5)
+
 ```
 
 
