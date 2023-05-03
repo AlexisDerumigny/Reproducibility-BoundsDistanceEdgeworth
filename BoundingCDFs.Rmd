@@ -60,7 +60,7 @@ df_bounds_Student = data.frame(
 plot_Student <- ggplot(df_bounds_Student) + 
   geom_line(aes(x = x, y = y, color = type, group = uniqid)) +
   coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002)) +
-  xlab(label = expression(S[n])) +
+  xlab(label = expression(x)) +
   ylab(label = expression(P(S[n] <= x))) +
   guides(color = guide_legend(title = element_blank()) )
 
@@ -98,7 +98,7 @@ precBits = 500
 n = 100000
 meanx = sqrt(n)
 x_mpfr = seqMpfr(from = mpfr(-5, precBits),
-            to = mpfr(5, precBits), length.out = 500)
+                 to = mpfr(5, precBits), length.out = 500)
 
 shape = mpfr(n, precBits) # shape parameter
 gamma_a = Rmpfr::igamma(a = shape, 0)
@@ -171,7 +171,7 @@ plot_Gamma <- ggplot(df_bounds_Gamma) +
   geom_line(aes(x = x, y = y, color = type, group = uniqid, linetype = Oracle)) +
   # coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002))
   coord_cartesian(xlim = c(2, 2.5), ylim = c(0.97, 1)) +
-  xlab(label = expression(S[n])) +
+  xlab(label = expression(x)) +
   ylab(label = expression(P(S[n] <= x))) +
   scale_color_manual(
     values = c("True probability" = scales::hue_pal()(3)[3],
