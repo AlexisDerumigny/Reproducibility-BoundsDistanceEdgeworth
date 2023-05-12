@@ -1,7 +1,9 @@
 ---
 title: "Bounding CDFs"
-output: pdf_document
-date: "2023-04-12"
+author: "Derumigny, A. , Guyonvarch Y. & Girard, L."
+date: \today
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -34,20 +36,31 @@ DeltanE_5df = BoundEdgeworth::Bound_EE1(
   list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
   n = n_5df, K4 = 9)
 
-PreviousBound_5df = 0.4690 * K3n_5df / sqrt(n_5df)
+PreviousBound_5df_oracle = 0.4690 * K3n_5df / sqrt(n_5df)
+
+PreviousBound_5df = 0.4690 * 0.621 * (9^(3/4)) / sqrt(n_5df)
 
 df_bounds_Student_5df = data.frame(
-  x = c(cdf_Student_5df$x, rep(x_5df, times = 4)),
+  x = c(cdf_Student_5df$x, rep(x_5df, times = 6)),
   y = c(cdf_Student_5df$cdf,
         pnorm(x_5df) - DeltanE_5df,
         pnorm(x_5df) + DeltanE_5df,
         pnorm(x_5df) - PreviousBound_5df,
-        pnorm(x_5df) + PreviousBound_5df),
+        pnorm(x_5df) + PreviousBound_5df,
+        pnorm(x_5df) - PreviousBound_5df_oracle,
+        pnorm(x_5df) + PreviousBound_5df_oracle),
   type = c(rep("True probability", nrow(cdf_Student_5df)),
-           rep(c("New bounds", "New bounds", "Existing bounds", "Existing bounds"),
+           rep(c("New bounds", "New bounds",
+                 "Existing bounds", "Existing bounds",
+                 "Existing bounds", "Existing bounds"),
                each = length(x_5df))),
   uniqid = c(rep("True", nrow(cdf_Student_5df)),
-             rep(c("New_min", "New_max", "Existing_min", "Existing_max"), each = length(x_5df)))
+             rep(c("New_min", "New_max", "Existing_min", "Existing_max",
+                   "Existing_min_oracle", "Existing_max_oracle"), each = length(x_5df))),
+  
+  Oracle = c(rep(c(TRUE,
+                   FALSE, FALSE,
+                   FALSE, FALSE, TRUE, TRUE), each = length(x_5df) ) )
 )
 
 # plot(cdf_Student_5df$x, cdf_Student_5df$cdf, xlim = c(-5, 5), type = "l")
@@ -61,7 +74,7 @@ df_bounds_Student_5df = data.frame(
 # lines(x, pnorm(x) + PreviousBound, col = "blue")
 
 plot_Student_5df <- ggplot(df_bounds_Student_5df) + 
-  geom_line(aes(x = x, y = y, color = type, group = uniqid)) +
+  geom_line(aes(x = x, y = y, color = type, group = uniqid, linetype = Oracle)) +
   coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002)) +
   xlab(label = expression(x)) +
   ylab(label = expression(P(S[n] <= x))) +
@@ -73,17 +86,18 @@ ggsave("plot_bounds_Student_5df.pdf", plot = plot_Student_5df, width = 10, heigh
 ```
 
 
-```{r fig.height=5}
-plot(cdf_Student_5df$cdf, pnorm(x),  type = "l")
+<!-- ```{r fig.height=5} -->
+<!-- plot(cdf_Student_5df$cdf, pnorm(cdf_Student_5df$x),  type = "l") -->
 
-plot(x, cdf_Student_5df$cdf, type = "l", xlim = c(2.09,2.11), ylim = c(0.9815, 0.9825))
-lines(x, pnorm(x), col = "red")
+<!-- plot(pnorm(cdf_Student_5df$x, cdf_Student_5df$cdf, -->
+<!--            type = "l", xlim = c(2.09,2.11), ylim = c(0.9815, 0.9825)) -->
+<!-- lines(pnorm(cdf_Student_5df$x, pnorm(pnorm(cdf_Student_5df$x), col = "red") -->
 
-mat_Student = data.frame(
-  true_cdf = cdf_Student_5df$cdf,
-  Edge_exp = pnorm(x)
-)
-```
+<!-- mat_Student = data.frame( -->
+<!--   true_cdf = cdf_Student_5df$cdf, -->
+<!--   Edge_exp = pnorm(pnorm(cdf_Student_5df$x) -->
+<!-- ) -->
+<!-- ``` -->
 
 <!-- ```{r} -->
 <!-- plot(cdf_Student_5df$x, cdf_Student_5df$cdf, type = "l", xlim = c(1.5, 3.5), ylim = c(0.92, 1.002)) -->
@@ -123,7 +137,7 @@ DeltanE_8df_oracle = BoundEdgeworth::Bound_EE1(
 
 PreviousBound_8df_oracle = 0.4690 * K3n_8df / sqrt(n_8df)
 
-PreviousBound_8df = 0.4690 * (9^(3/4)) / sqrt(n_8df)
+PreviousBound_8df = 0.4690 * 0.621 * (9^(3/4)) / sqrt(n_8df)
 
 df_bounds_Student_8df = data.frame(
   x = c(cdf_Student_8df$x, rep(x_8df, times = 8)),
@@ -150,7 +164,7 @@ df_bounds_Student_8df = data.frame(
   
   Oracle = c(rep(c(TRUE,
                    FALSE, FALSE, TRUE, TRUE,
-                   FALSE, FALSE, TRUE, TRUE), each = length(x) )
+                   FALSE, FALSE, TRUE, TRUE), each = length(x_8df) )
   )
 )
 
@@ -225,7 +239,7 @@ ymax = pnorm(x) + 0.621 * 9^(3/4) / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) + Delta
 ymin_oracle = pnorm(x) + lambda3n / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) - DeltanE_oracle
 ymax_oracle = pnorm(x) + lambda3n / (6 * sqrt(n)) * (1 - x^2) * dnorm(x) + DeltanE_oracle
 
-PreviousBound = 0.4690 * 9^(3/4) / sqrt(n)
+PreviousBound = 0.4690 * 0.621 * 9^(3/4) / sqrt(n)
 y_previous_min = pnorm(x) - PreviousBound
 y_previous_max = pnorm(x) + PreviousBound
 
