@@ -28,7 +28,7 @@ n = c(200, 500, 800,
 eta = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5)
 
 df = expand.grid(n = n, eta = eta)
-df$beta = t_test_powerAnalysis(eta = df$eta, n = df$n, alpha = alpha,
+df$beta = Gauss_test_powerAnalysis(eta = df$eta, n = df$n, alpha = alpha,
                                K4 = K4, kappa = kappa)
 ```
 
@@ -61,7 +61,7 @@ df2 = expand.grid(eta = eta, beta = beta)
 df2$n_suffi = NA
 
 for (i in 1:nrow(df2)){
-  df2$n_suffi[i] = t_test_powerAnalysis(eta = df2$eta[i], beta = df2$beta[i], alpha = alpha,
+  df2$n_suffi[i] = Gauss_test_powerAnalysis(eta = df2$eta[i], beta = df2$beta[i], alpha = alpha,
                                         K4 = K4, kappa = kappa)
 }
 
