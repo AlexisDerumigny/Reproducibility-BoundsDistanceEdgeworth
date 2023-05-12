@@ -20,33 +20,34 @@ Nrep = 10000
 ```{r}
 cdf_Student_5df = read.csv("cdf_Student_n5000_5df.csv", header = TRUE, sep = ",", dec = ".")
 
-lambda3n = mean(scale(rt(Nrep, df = 5))^3)
-K3n = mean(abs(scale(rt(Nrep, df = 5)))^3)
+lambda3n_5df = mean(scale(rt(Nrep, df = 5))^3)
+K3n_5df = mean(abs(scale(rt(Nrep, df = 5)))^3)
 ```
 
 
 ```{r}
-n = 5000
+n_5df = 5000
 
-x = seq(-5, 5, by = 0.01)
+x_5df = seq(-5, 5, by = 0.01)
 
-DeltanE = BoundEdgeworth::Bound_EE1(
+DeltanE_5df = BoundEdgeworth::Bound_EE1(
   list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
-  n = n, K4 = 9)
+  n = n_5df, K4 = 9)
 
-PreviousBound = 0.4690 * K3n / sqrt(n)
+PreviousBound_5df = 0.4690 * K3n_5df / sqrt(n_5df)
 
-df_bounds_Student = data.frame(
-  x = c(cdf_Student_5df$x, rep(x, times = 4)),
+df_bounds_Student_5df = data.frame(
+  x = c(cdf_Student_5df$x, rep(x_5df, times = 4)),
   y = c(cdf_Student_5df$cdf,
-        pnorm(x) - DeltanE,
-        pnorm(x) + DeltanE,
-        pnorm(x) - PreviousBound,
-        pnorm(x) + PreviousBound),
+        pnorm(x_5df) - DeltanE_5df,
+        pnorm(x_5df) + DeltanE_5df,
+        pnorm(x_5df) - PreviousBound_5df,
+        pnorm(x_5df) + PreviousBound_5df),
   type = c(rep("True probability", nrow(cdf_Student_5df)),
-           rep(c("New bounds", "New bounds", "Existing bounds", "Existing bounds"), each = length(x))),
+           rep(c("New bounds", "New bounds", "Existing bounds", "Existing bounds"),
+               each = length(x_5df))),
   uniqid = c(rep("True", nrow(cdf_Student_5df)),
-             rep(c("New_min", "New_max", "Existing_min", "Existing_max"), each = length(x)))
+             rep(c("New_min", "New_max", "Existing_min", "Existing_max"), each = length(x_5df)))
 )
 
 # plot(cdf_Student_5df$x, cdf_Student_5df$cdf, xlim = c(-5, 5), type = "l")
@@ -59,16 +60,29 @@ df_bounds_Student = data.frame(
 # lines(x, pnorm(x) - PreviousBound, col = "blue")
 # lines(x, pnorm(x) + PreviousBound, col = "blue")
 
-plot_Student <- ggplot(df_bounds_Student) + 
+plot_Student_5df <- ggplot(df_bounds_Student_5df) + 
   geom_line(aes(x = x, y = y, color = type, group = uniqid)) +
   coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002)) +
   xlab(label = expression(x)) +
   ylab(label = expression(P(S[n] <= x))) +
   guides(color = guide_legend(title = element_blank()) )
 
-print(plot_Student)
+print(plot_Student_5df)
 
-ggsave("plot_bounds_Student_5df.pdf", plot = plot_Student, width = 10, height = 5)
+ggsave("plot_bounds_Student_5df.pdf", plot = plot_Student_5df, width = 10, height = 5)
+```
+
+
+```{r fig.height=5}
+plot(cdf_Student_5df$cdf, pnorm(x),  type = "l")
+
+plot(x, cdf_Student_5df$cdf, type = "l", xlim = c(2.09,2.11), ylim = c(0.9815, 0.9825))
+lines(x, pnorm(x), col = "red")
+
+mat_Student = data.frame(
+  true_cdf = cdf_Student_5df$cdf,
+  Edge_exp = pnorm(x)
+)
 ```
 
 <!-- ```{r} -->
