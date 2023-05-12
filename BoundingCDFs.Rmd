@@ -96,6 +96,79 @@ mat_Student = data.frame(
 <!-- ``` -->
 
 
+# Student-t distribution with 8 degrees of freedom
+
+
+```{r}
+cdf_Student_8df = read.csv("cdf_Student_n5000_8df.csv", header = TRUE, sep = ",", dec = ".")
+
+lambda3n_8df = mean(scale(rt(Nrep, df = 8))^3)
+K3n_8df = mean(abs(scale(rt(Nrep, df = 8)))^3)
+K4n_8df = 3 + 6 / (8 - 4)
+```
+
+
+```{r}
+n_8df = 5000
+
+x_8df = seq(-5, 5, by = 0.01)
+
+DeltanE_8df = BoundEdgeworth::Bound_EE1(
+  list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
+  n = n_8df, K4 = 9)
+
+DeltanE_8df_oracle = BoundEdgeworth::Bound_EE1(
+  list(continuity = TRUE, iid = TRUE, no_skewness = TRUE),
+  n = n_8df, K4 = K4n_8df)
+
+PreviousBound_8df_oracle = 0.4690 * K3n_8df / sqrt(n_8df)
+
+PreviousBound_8df = 0.4690 * (9^(3/4)) / sqrt(n_8df)
+
+df_bounds_Student_8df = data.frame(
+  x = c(cdf_Student_8df$x, rep(x_8df, times = 8)),
+  y = c(cdf_Student_8df$cdf,
+        pnorm(x_8df) - DeltanE_8df,
+        pnorm(x_8df) + DeltanE_8df,
+        pnorm(x_8df) - DeltanE_8df_oracle,
+        pnorm(x_8df) + DeltanE_8df_oracle,
+        pnorm(x_8df) - PreviousBound_8df,
+        pnorm(x_8df) + PreviousBound_8df,
+        pnorm(x_8df) - PreviousBound_8df_oracle,
+        pnorm(x_8df) + PreviousBound_8df_oracle),
+  type = c(rep("True probability", nrow(cdf_Student_8df)),
+           rep(c("New bounds", "New bounds",
+                 "New bounds", "New bounds",
+                 "Existing bounds", "Existing bounds",
+                 "Existing bounds", "Existing bounds"),
+               each = length(x_8df))),
+  uniqid = c(rep("True", nrow(cdf_Student_8df)),
+             rep(c("New_min", "New_max",
+                   "New_min_oracle", "New_max_oracle",
+                   "Existing_min", "Existing_max",
+                   "Existing_min_oracle", "Existing_max_oracle"), each = length(x_8df))),
+  
+  Oracle = c(rep(c(TRUE,
+                   FALSE, FALSE, TRUE, TRUE,
+                   FALSE, FALSE, TRUE, TRUE), each = length(x) )
+  )
+)
+
+plot_Student <- ggplot(df_bounds_Student_8df) + 
+  geom_line(aes(x = x, y = y, color = type, group = uniqid, linetype = Oracle)) +
+  coord_cartesian(xlim = c(1.5, 2.5), ylim = c(0.92, 1.002)) +
+  xlab(label = expression(x)) +
+  ylab(label = expression(P(S[n] <= x))) +
+  guides(color = guide_legend(title = element_blank()) )
+
+
+print(plot_Student)
+
+ggsave("plot_bounds_Student_8df.pdf", plot = plot_Student, width = 10, height = 5)
+```
+
+
+
 # Gamma distribution
 
 If $X_i \sim Gamma(1, scale = 1)$, $mu = 1$, $sigma = 1$,
