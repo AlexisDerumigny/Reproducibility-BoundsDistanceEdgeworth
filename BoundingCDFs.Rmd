@@ -205,7 +205,7 @@ x = as.numeric(x_mpfr)
 df_mc = scale(rexp(Nrep, rate = 1))
 lambda3n = mean(df_mc^3)
 K3 = mean(abs(df_mc)^3)
-K4 = mean(df_mc^4)
+K4 = 9
 
 DeltanE = BoundEdgeworth::Bound_EE1(
   list(continuity = TRUE, iid = TRUE, no_skewness = FALSE),
