@@ -1,8 +1,9 @@
 ---
 title: "Sufficient sample sizes"
-author: "Alexis Derumigny"
-date: "2023-05-12"
-output: html_document
+author: "Derumigny, A. , Guyonvarch Y. & Girard, L."
+date: \today
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -29,7 +30,7 @@ eta = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5)
 
 df = expand.grid(n = n, eta = eta)
 df$beta = Gauss_test_powerAnalysis(eta = df$eta, n = df$n, alpha = alpha,
-                               K4 = K4, kappa = kappa)
+                                   K4 = K4, kappa = kappa)
 ```
 
 
@@ -62,7 +63,7 @@ df2$n_suffi = NA
 
 for (i in 1:nrow(df2)){
   df2$n_suffi[i] = Gauss_test_powerAnalysis(eta = df2$eta[i], beta = df2$beta[i], alpha = alpha,
-                                        K4 = K4, kappa = kappa)
+                                            K4 = K4, kappa = kappa)
 }
 
 my_table

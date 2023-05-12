@@ -17,6 +17,9 @@ rmarkdown::render("CoefficientsMainTheorems.Rmd")
 rmarkdown::render("Comparison_Bounds_EE.Rmd")
 rmarkdown::render("MinimumInformativeSize.Rmd")
 rmarkdown::render("OptimizationIntegrals.Rmd")
+rmarkdown::render("BoundingCDFs.Rmd")
+rmarkdown::render("SufficientSampleSizes.Rmd")
+rmarkdown::render("Computation_kappa.Rmd")
 ```
 
 They respectively deal with:
@@ -29,28 +32,34 @@ They respectively deal with:
   - the computation of Table 2
   
   - the optimization of the integrals for Appendices B.1 and B.2.
+  
+  - the production of Figures 3, 4 and 5
+  
+  - the computation of Table 3 and 4
+  
+  - the optimization of the values of $\kappa$ for several distributions
 
 
 # Requirements
 
-This study was done using R version 4.2.1 with the following packages:
+This study was done using R version 4.3.0 with the following packages:
 
 | Package          | Version |
 | :--------------- | :------ |
-| `BoundEdgeworth` | 0.1.0   |
-| `tidyverse`      | 1.3.2   |
-| `ggplot2`        | 3.3.6   |
-| `tibble`         | 3.1.8   |
-| `tidyr`          | 1.2.0   |
-| `readr`          | 2.1.2   |
-| `purrr`          | 0.3.4   |
-| `dplyr`          | 1.0.9   |
-| `stringr`        | 1.4.1   |
-| `forcats`        | 0.5.2   |
-| `cubature`       | 0.4.5   |
-| `expint`         | 0.1-7   |
-| `rmarkdown`      | 2.16.1  |
-| `gt`             | 0.7.0   |
+| `BoundEdgeworth` | 0.1.2   |
+| `tidyverse`      | 2.0.0   |
+| `ggplot2`        | 3.4.2   |
+| `tibble`         | 3.2.1   |
+| `tidyr`          | 1.3.0   |
+| `readr`          | 2.1.4   |
+| `purrr`          | 1.0.1   |
+| `dplyr`          | 1.1.2   |
+| `stringr`        | 1.5.0   |
+| `forcats`        | 1.0.0   |
+| `cubature`       | 2.0.4.6 |
+| `expint`         | 0.1.8   |
+| `rmarkdown`      | 2.21    |
+| `gt`             | 0.9.0   |
 
 
 They can be all installed using the following command.
