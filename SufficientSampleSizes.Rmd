@@ -8,17 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(BoundEdgeworth)
 ```
 
 
-
-$$1 - \Phi \Big( q_{\mathcal{N}(0,1)}(1-\alpha)
-+ \frac{\eta}{n} \Big)
-- \frac{\lambdatroisn \times \left(1 - \left( q_{\mathcal{N}(0,1)}(1-\alpha)
-+ \frac{\eta}{n} \right)^2 \right)}{6\sqrt{n}}
-\times \varphi \Big( q_{\mathcal{N}(0,1)}(1-\alpha)
-+ \frac{\eta}{n} \Big)
-- \delta_n$$
 
 ```{r}
 alpha = 0.05
@@ -27,28 +20,16 @@ kappa = 0.99
 ```
 
 
+# Computation of power
+
 ```{r}
 n = c(200, 500, 800,
       1000, 2000, 5000, 10000, 50000, 100000)
 eta = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5)
 
-value_equation = function(alpha, eta, n, K4, kappa){
-  delta_n = BoundEdgeworth::Bound_BE(
-    setup = list(continuity = TRUE, iid = TRUE, no_skewness = FALSE),
-    n = n, K4 = K4, regularity = list(kappa = kappa), eps = 0.1)
-  
-  qnormalpha = qnorm(1 - alpha)
-  
-  result = 1 - pnorm( qnormalpha - eta * sqrt(n) ) - 
-    0.621 * K4^(3/4) * (1 - ( qnormalpha - eta * sqrt(n) )^2 ) *
-    dnorm( qnormalpha - eta * sqrt(n) ) / (6 * sqrt(n)) - delta_n
-  
-  return (result)
-}
-
 df = expand.grid(n = n, eta = eta)
-df$valueeq = value_equation(alpha = alpha, eta = df$eta, n = df$n,
-                            K4 = K4, kappa = kappa)
+df$beta = t_test_powerAnalysis(eta = df$eta, n = df$n, alpha = alpha,
+                               K4 = K4, kappa = kappa)
 ```
 
 
@@ -56,18 +37,16 @@ df$valueeq = value_equation(alpha = alpha, eta = df$eta, n = df$n,
 my_table = df %>% 
   mutate(
     eta = paste0("eta = ", eta),
-    value = formatC(if_else(valueeq < 0, 0, valueeq * 100) ,
-                    digits = 1, format = "f"),
+    beta = formatC(if_else(beta < 0, 0, beta * 100) ,
+                   digits = 1, format = "f"),
     n = formatC(n, big.mark = ",", format = "d")) %>%
-  select(! all_of("valueeq")) %>%
-  pivot_wider(names_from = "eta", values_from = "value") %>%
+  pivot_wider(names_from = "eta", values_from = "beta") %>%
   gt::gt()
 
 my_table
 
-cat(gt::as_latex(my_table %>% gt::fmt_passthrough(escape = FALSE, columns = everything())))
+my_table %>% gt::as_latex() %>% cat()
 ```
-
 
 
 # Computation of sufficient sample sizes
@@ -75,31 +54,23 @@ cat(gt::as_latex(my_table %>% gt::fmt_passthrough(escape = FALSE, columns = ever
 
 ```{r}
 
-computation_sample_sizes = function(eta, alpha, beta, K4, kappa){
-  
-  result = optimize(f = function(n){(value_equation(alpha, eta, n, K4, kappa) - beta)^2},
-                    interval = c(0, 10^10))
-  
-  return (ceiling(result$minimum))
-}
-
 eta = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5)
 beta = c(0.5, 0.8, 0.85, 0.9, 0.95, 0.99)
 
 df2 = expand.grid(eta = eta, beta = beta)
 df2$n_suffi = NA
+
 for (i in 1:nrow(df2)){
-  my_result = computation_sample_sizes(
-    eta = df2$eta[i], alpha = alpha, beta = df2$beta[i], K4 = K4, kappa = kappa)
-  df2$n_suffi[i] = my_result
+  df2$n_suffi[i] = t_test_powerAnalysis(eta = df2$eta[i], beta = df2$beta[i], alpha = alpha,
+                                        K4 = K4, kappa = kappa)
 }
+
+my_table
 
 my_table = df2 %>%
   mutate(n_suffi = formatC(n_suffi, big.mark = ",", format = "d")) %>%
   pivot_wider(names_from = "eta", values_from = "n_suffi") %>%
   gt::gt() %>% gt::as_latex() %>% cat
 ```
-
-
 
 
