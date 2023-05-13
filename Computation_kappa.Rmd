@@ -11,115 +11,72 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-Remember that $$\kappa_n := 
-\sup_{t: \, |t| \geq a_n/\sqrt{n}} |f_{X_n/\sigma_n}(t)|.$$
-with $a_n := 2 t_1^* \pi \sqrt{n} / (2 K_{3,n})$ for large $n$.
 
-Furthermore, $t_1^* \pi \approx = 2.0106$
 ```{r}
-0.64 * pi
-```
+# Function to compute a_n (cf article)
 
-Therefore,
-$$\kappa_n \leq
-\sup_{t: \, |t| \geq 2 / K_{3,n}} |f_{X_n/\sigma_n}(t)|.$$
+t1 <- 0.64 # universal constant from paper
 
-# Normal distribution
-
-For the normal distribution $K_{3,n} = \sqrt{2/pi}$ and $|f_{X_n/\sigma_n}(t)| = \exp(-t^2/2)$.
-Therefore $\kappa_n$ is smaller than
-```{r}
-t = 2 / sqrt(2 / pi)
-exp( - t^2 / 2)
-```
-
-# Laplace distribution
-
-For the Laplace distribution $K_{3,n} = 6/2^{3/2}$ and $|f_{X_n/\sigma_n}(t)| = 1 / (1 + t^2/2)$.
-Therefore $\kappa_n$ is smaller than
-```{r}
-t = 2 / (6 / 2^{3/2})
-1 / (1 + t^2/2)
+compute_an <- function(n, K3) {
+  
+  build_an_1 <- 2 * t1 * pi * sqrt(n) / (K3+1)
+  build_an_2 <- 16 * pi^3 * n^2 / (K3 + 1)^4
+  
+  return( min(build_an_1, build_an_2)/sqrt(n) )
+}
 ```
 
 
-# Student distribution
+# Exponential and normal distributions
 
 
 ```{r}
 # Setting parameters
 Nrep = 100000
 
-t1 <- 0.64 # universal constant from paper
-n<- 5000
-nu <- 8 # df for student
 K4_exp <- 9
 K4_gauss <- 3
 ```
 
-```{r}
-# Absolute third order moment of exp distr upper bounded while that of
-# standard normal distr explicitly computed
 
-K3_exp <- K4_exp^(3/4)
-K3_gauss <- 2^(3/2)*gamma(2)/sqrt(pi)
+```{r}
+# Computation of absolute third order moment
+K3_exp <- 2.31
+K3_gauss <- 2^(3/2) * gamma(2) / sqrt(pi)
 ```
 
 
 ```{r}
-
-# Function to compute a_n (cf article)
-
-compute_an <- function(t1,n,K3) {
-  
-  build_an_1 <- 2*t1*pi*sqrt(n)/(K3+1)
-  build_an_2 <- 16*pi^3*n^2/(K3+1)^4
-  
-  return( min(build_an_1,build_an_2)/sqrt(n) )
-}
-
-
 # Compute kappa_n for exp and standard normal
 
-carac_exp_at_an <- 1 / sqrt(1 + compute_an(t1=t1,n=n,K3=K3_exp)^2)
+carac_exp_at_an <- 1 / sqrt(1 + compute_an(n = 100000, K3 = K3_exp)^2)
+print(carac_exp_at_an)
 
-carac_gauss_at_an <- exp( - compute_an(t1=t1,n=n,K3=K3_gauss)^2/2)
+carac_gauss_at_an <- exp( - compute_an(n = 5000, K3 = K3_gauss)^2/2)
+print(carac_gauss_at_an)
+```
 
 
+# Student distribution
+
+```{r}
 # Function to evaluate the characteristic function of 
 # the Student distribution at some point of interest (here a_n)
 
-stud_carac_fun <- function(t1, n, nu) {
-  
+stud_carac_fun <- function(n, nu) {
+  Nrep = 100000
   sigma <- sqrt(nu/(nu-2))
   K4 <- 6/(nu-4)+3
-  an <- compute_an(t1=t1, n=n, K3= mean(abs(scale(rt(Nrep, df = nu)))^3) )
+  an <- compute_an(n=n, K3 = mean(abs(scale(rt(Nrep, df = nu)))^3) )
   temp1 <- besselK(nu = nu/2, x = sqrt(nu)*abs(an)/sigma)
   temp2 <- (sqrt(nu)*abs(an)/sigma)^(nu/2) / (gamma(nu/2)*2^(nu/2-1))
   
   return(temp1 * temp2)
 }
+
+# Compute kappa_n for the Student distribution
+
+stud_carac_fun(n = 5000, nu = 8)
+stud_carac_fun(n = 5000, nu = 5)
 ```
-
-
-```{r}
-# compute kappa_n for the Student distribution
-
-stud_carac_fun(t1=t1,n=n,nu=8)
-stud_carac_fun(t1=t1,n=n,nu=5)
-```
-
-# Exponential distribution
-
-The characteristic function of the exponential distribution is $1 / (1-it)$.
-So the one we need is $1 / (1-it) * \exp(it)$ (which has the same modulus).
-
-```{r}
-an_Gamma = compute_an(t1=t1, n = 5000, K3 = 2.31)
-
-sqrt((1 / (1 + an_Gamma^2)^2 )^2 + 
-       (an_Gamma^2 / (1 + an_Gamma^2)^2 )^2 )
-
-```
-
 
