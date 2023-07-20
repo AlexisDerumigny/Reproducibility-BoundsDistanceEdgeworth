@@ -82,7 +82,8 @@ plot_Student_5df <- ggplot(df_bounds_Student_5df) +
 
 print(plot_Student_5df)
 
-ggsave("plot_bounds_Student_5df.pdf", plot = plot_Student_5df, width = 10, height = 5)
+ggsave("plot_bounds_Student_5df.eps", plot = plot_Student_5df, width = 10, height = 5,
+       device = "eps")
 ```
 
 
@@ -178,7 +179,8 @@ plot_Student <- ggplot(df_bounds_Student_8df) +
 
 print(plot_Student)
 
-ggsave("plot_bounds_Student_8df.pdf", plot = plot_Student, width = 10, height = 5)
+ggsave("plot_bounds_Student_8df.eps", plot = plot_Student, width = 10, height = 5,
+       device = "eps")
 ```
 
 
@@ -283,7 +285,8 @@ plot_Gamma <- ggplot(df_bounds_Gamma) +
 
 print(plot_Gamma)
 
-ggsave("plot_bounds_Gamma.pdf", plot = plot_Gamma, width = 10, height = 5)
+ggsave("plot_bounds_Gamma.eps", plot = plot_Gamma, width = 10, height = 5,
+       device = "eps")
 
 ```
 
